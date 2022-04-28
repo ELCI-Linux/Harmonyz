@@ -1,14 +1,15 @@
 #! /bin/bash/
 
-helper="Harmonyz"
-versnum="1.1"
+	helper="Harmonyz"
+	versnum="1.2"
 
+	zenity --notification \
+	--text="$helper $versnum"
 
-	zenity --info --title="$helper $versnum" \
+	zenity --info \
+	--title="$helper $versnum" \
 	--width=500 \
 	--text="Welcome to $helper. This program can be used to install a variety of audio players, including DSPs. To support ELCI and other crypto creators, consider installing Audius."
-
-
 
 	harmony=$(zenity --list \
 	--height=480 --width=400 \
@@ -25,86 +26,97 @@ versnum="1.1"
 	"" "Hydrogen" "Local" \
 	"" "Lyrics" "Local" \
 	"" "Spotify" "DSP" \
-	"" "Strawberry" "Local (Install for Tidal)")
+	"" "Strawberry" "Local (Install for Tidal)"
+	"" "VVave"	"Local")
 
 
-	HAM=$(echo $harmony | grep -c "Apple Music")
-	if [ $HAM -gt '0' ]; then
+	APPLE_MUSIC=$(echo $harmony | grep -c "Apple Music")
+	if [ $APPLE_MUSIC -gt '0' ]; then
  	sudo apt-get install snap snapd -yy
 	sudo snap install apple-music-for-linux
 	fi
 
-	HAU=$(echo $harmony | grep -c "Audacious")
-	if [ $HAU -gt '0' ]; then
+	AUDACIOUS=$(echo $harmony | grep -c "Audacious")
+	if [ $AUDACIOUS -gt '0' ]; then
 	flatpak install flathub org.atheme.audacious -yy
 	fi
 
 	AUDIUS=$(echo $harmony | grep -c "Audius")
 	if [ $AUDIUS -gt '0' ]; then
 	wget "https://download.audius.co/Audius%200.16.6.AppImage" -O ./Audius.AppImage
-        ./Audius.AppImage
+	chmod u+x ./Audius.AppImage
+        ./Audius.AppImage && \
+		zenity --question --text="Audius has been installed, would you like to delete the AppImage?"
+		if [ $? -eq "0" ]; then
+		rm ./Audius.AppImage
+		fi
 	fi
 
-	HBY=$(echo $harmony | grep -c "Byte")
-	if [ $HBY -gt '0' ]; then
-	flatpak install flathub com.github.alainm23.byte -yy
+	BYTE=$(echo $harmony | grep -c "Byte")
+	if [ $BYTE -gt '0' ]; then
+	flatpak install flathub com.github.alainm23.byte -y
 	fi
 
-	HDE=$(echo $harmony | grep -c "Deezer")
-	if [ $HDE -gt '0' ]; then
+	DEEZER=$(echo $harmony | grep -c "Deezer")
+	if [ $DEEZER -gt '0' ]; then
 	sudo apt-get install flatpak -yy
 	flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 	flatpak remote-add --if-not-exists nuvola https://dl.tiliado.eu/flatpak/nuvola.flatpakrepo
 	flatpak update yy
-	flatpak install nuvola eu.tiliado.NuvolaAppDeezer -yy && flatpak run eu.tiliado.NuvolaAppDeezer -yy
+	flatpak install nuvola eu.tiliado.NuvolaAppDeezer -y && flatpak run eu.tiliado.NuvolaAppDeezer -y
 	flatpak run eu.tiliado.NuvolaAppDeezer
 	fi
 
-	HCM=$(echo $harmony | grep -c "CMUS")
-	if [ $HCM -gt '0' ]; then
-	sudo apt-get install libao-ocaml-dev cmus -yy
+	CMUS=$(echo $harmony | grep -c "CMUS")
+	if [ $CMUS -gt '0' ]; then
+	sudo apt-get install libao-ocaml-dev cmus -y
 	fi
 
-	HGN=$(echo $harmony | grep -c "Gnome Music Player")
-	if [ $HGN -gt '0' ]; then
-	flatpak install flathub org.gnome.Music -yy
+	GNOME_MUSIC=$(echo $harmony | grep -c "Gnome Music Player")
+	if [ $GNOME_MUSIC -gt '0' ]; then
+	flatpak install flathub org.gnome.Music -y
 	fi
 
-	HH=$(echo $harmony | grep -c "Hydrogen")
-	if [ $HH -gt '0' ]; then
-	flatpak install org.hydrogenmusic.Hydrogen -yy
+	HYDROGEN=$(echo $harmony | grep -c "Hydrogen")
+	if [ $HYDROGEN -gt '0' ]; then
+	flatpak install org.hydrogenmusic.Hydrogen -y
 	fi
 
-	HLY=$(echo $harmony | grep -c "Lyrics")
-	if [ $HLY -gt '0' ]; then
-	flatpak install flathub com.github.naaando.lyrics -yy
+	LYRICS=$(echo $harmony | grep -c "Lyrics")
+	if [ $LYRICS -gt '0' ]; then
+	flatpak install flathub com.github.naaando.lyrics -y
 	fi
 
-	HSP=$(echo $harmony | grep -c "Spotify")
-	if [ $HSP -gt '0' ]; then
-	flatpak install flathub com.spotify.Client -yy
+	SPOTIFY=$(echo $harmony | grep -c "Spotify")
+	if [ $SPOTIFY -gt '0' ]; then
+	flatpak install flathub com.spotify.Client -y
 	fi
 
-	HST=$(echo $harmony | grep -c "Strawberry")
-	if [ $HST -gt '0' ]; then
+	SPOTIFY_CLI=$(echo $harmony | grep -c "Spotify-CLI")
+	if [ $SPOTIFY_CLI -gt "0" ]; then
+	cargo install spt
+	fi
+
+	STRAWBERRY=$(echo $harmony | grep -c "Strawberry")
+	if [ $STRAWBERRY -gt '0' ]; then
 	sudo add-apt-repository ppa:jonaski/strawberry
 	sudo apt-get update
-	sudo apt-get install strawberry -yy
+	sudo apt-get install strawberry -y
 		zenity --question --title="Tidal Support?" --text="Harmony has detected you have successfully installed Strawberry. Would you like to add TIDAL support?"
 		if [ $? -gt '0' ]; then
 		sudo mkdir ./TIDAL-API
-		
+
 			API=$(zenity --list --checklist --title="TIDAL API Source?" --text="Harmonyz needs access to your TIDAL APIs to complete this process. Please select a platform where you have an existing installation of TIDAL available." --column="Selected" --column="Platform" "" "Android" "" "Locate Manually (Windows)")
-		
+
 			APIA=$(echo $API | grep -c "Android")
 			if [ $APIA -gt '0' ]; then
 			adb pull /storage/emulated/0/Android/data/com.aspiro.tidal/cache
 			fi
-	
+
 			APIW=$(echo $API | grep -c "Locate Manually (Windows)")
 			if [ $APIW -gt '0' ]; then
 			APILOC=$(zenity --file-selection --directory)
-			
+
 		#backup conf and replace with tidal compatible version
 		mkdir ./confbackups
 		sudo cp ~/.config/pulse/daemon.conf ./confbackups &&
@@ -114,9 +126,13 @@ versnum="1.1"
 			cp $APILOC ./TIDAL-API
 			fi
 		fi
+
 	fi
 
-
+	VVAVE=$(echo $harmony | grep -c "Vvave")
+	if [ $VVAVE -eq "1" ]; then
+	flatpak --system install org.kde.vvave -y
+	fi
 
 #Finish
 
